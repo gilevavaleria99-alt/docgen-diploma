@@ -1,0 +1,54 @@
+.metadata-form {
+  padding: 30px;
+  background-color: white;
+  height: 100%;
+  box-sizing: border-box; /* Чтобы padding не увеличивал ширину */
+  display: flex;
+  flex-direction: column;
+}
+
+.metadata-title {
+  text-align: left; /* Выравниваем по левому краю, как в макете */
+  margin-bottom: 25px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1E1E20;
+}
+
+.form-field-wrapper {
+  margin-bottom: 15px;
+}
+
+.form-input, .form-select {
+  width: 100%;
+  padding: 12px 15px; /* Увеличиваем padding для "воздуха" */
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #D1D5DB; /* Светло-серая рамка */
+  background-color: white;
+  font-size: 14px;
+  color: #111827;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Убираем стандартную стрелку в select для кастомизации */
+.form-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="%236B7280"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>');
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2em 1.2em;
+  padding-right: 2.5rem; /* Оставляем место для кастомной стрелки */
+}
+
+.form-input::placeholder, .form-select option[value=""] {
+  color: #9CA3AF; /* Цвет для плейсхолдера */
+}
+
+.form-input:focus, .form-select:focus {
+  outline: none;
+  border-color: #9F2BC2; /* Фиолетовая рамка при фокусе */
+  box-shadow: 0 0 0 2px rgba(159, 43, 194, 0.2); /* Легкое свечение */
+}

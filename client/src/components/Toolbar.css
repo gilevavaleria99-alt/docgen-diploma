@@ -1,0 +1,132 @@
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #F8F9FA; /* Твой цвет фона */
+}
+
+.toolbar-header {
+  display: flex;
+  align-items: center;
+  padding: 20px 15px;
+  position: relative;
+}
+
+.logo {
+  height: 40px;
+  width: 40px;
+  margin-right: 10px;
+}
+
+.toolbar-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.toolbar-section {
+  padding: 15px;
+  flex-grow: 1;
+}
+
+.toolbar-button, .dropdown-toggle {
+  width: 100%;
+  padding: 8px 24px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  background-color: #9F2BC2;
+  color: #F8F9FA;
+  border-radius: 8px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown {
+  /* No position needed */
+}
+
+.dropdown-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.arrow {
+  border: solid #F8F9FA; /* Твой цвет стрелки */
+  border-width: 0 2px 2px 0;
+  display: inline-block;
+  padding: 3px;
+  transition: transform 0.2s;
+}
+.arrow.down { transform: rotate(45deg); }
+.arrow.up { transform: rotate(-135deg); }
+
+/* --- ИСПРАВЛЕННОЕ ПОВЕДЕНИЕ МЕНЮ С ТВОИМИ ЦВЕТАМИ --- */
+.dropdown-menu {
+  /* Убираем position: absolute, чтобы меню сдвигало контент */
+  background-color: #F8F9FA; /* Твой цвет фона меню */
+  border: 1px solid #111827; /* Твой цвет рамки меню */
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  padding: 5px 0;
+  overflow: hidden;
+}
+
+.dropdown-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  color: #111827; /* Темный цвет для текста на светлом фоне */
+}
+
+.dropdown-item:hover {
+  background-color: #e0e0e0; /* Нейтральный цвет для наведения */
+}
+
+.toolbar-footer {
+  padding: 15px;
+  position: relative;
+}
+
+.footer-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #333; /* Стандартный темный цвет для текста */
+}
+
+.icon {
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Линия ПОСЛЕ хедера */
+.toolbar-header::after {
+  content: ''; /* Обязательное свойство для псевдо-элементов */
+  position: absolute;
+  bottom: 0; /* Прижимаем линию к низу хедера */
+  left: 15px;  /* Отступ слева, равный padding'у */
+  right: 15px; /* Отступ справа, равный padding'у */
+  height: 1px; /* Толщина линии */
+  background-color: #e0e0e0; /* Цвет линии (можно использовать твой #797979) */
+}
+
+/* Линия ПЕРЕД футером */
+.toolbar-footer::before {
+  content: '';
+  position: absolute;
+  top: 0; /* Прижимаем линию к верху футера */
+  left: 15px;
+  right: 15px;
+  height: 1px;
+  background-color: #e0e0e0;
+}

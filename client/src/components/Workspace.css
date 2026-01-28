@@ -1,0 +1,118 @@
+.block-wrapper {
+  background-color: white;
+  border: 1px solid #E5E7EB; /* Светлая рамка, как в макете */
+  border-radius: 12px; /* Более скругленные углы */
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Мягкая тень */
+}
+
+.block-controls {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  gap: 8px;
+}
+
+/* Показываем контролы при наведении на весь блок */
+.block-wrapper:hover .block-controls {
+  opacity: 1;
+}
+
+.control-button {
+  cursor: pointer;
+  border: 1px solid #9F2BC2;
+  background: white;
+  color: #363738;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.control-button:hover {
+  background-color: #f3f4f6;
+  color: #1E1E20;
+}
+    
+.delete-button {
+  background-color: #9F2BC2;
+  border-color: transparent;
+  color: #F8F9FA;
+}
+
+.delete-button:hover {
+  background-color: #460957;
+  color: #F8F9FA;
+}
+
+/* --- СТИЛИ ДЛЯ РЕДАКТИРУЕМЫХ ПОЛЕЙ --- */
+
+/* Общий стиль для всех полей ввода внутри блоков */
+.block-input, .block-textarea {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid transparent; /* Невидимая рамка снизу */
+  padding: 8px 0;
+  box-sizing: border-box;
+  font-size: 16px;
+  font-family: inherit;
+  background-color: transparent;
+  transition: border-color 0.2s;
+}
+
+/* Убираем стандартную обводку при фокусе */
+.block-input:focus, .block-textarea:focus {
+  outline: none;
+  border-bottom: 1px solid #9F2BC2; /* Фиолетовая рамка при фокусе */
+}
+
+.block-textarea {
+  min-height: 50px;       /* Минимальная высота, чтобы поле не схлопывалось, когда пустое */
+  resize: none;           /* Убирает уголок для ручного изменения размера */
+  overflow-y: hidden;     /* Гарантированно прячет полосу прокрутки */
+}
+
+/* Стили для заголовков */
+.header-input-h1 { font-size: 2em; font-weight: bold; }
+.header-input-h2 { font-size: 1.5em; font-weight: bold; }
+.header-input-h3 { font-size: 1.17em; font-weight: bold; }
+
+/* Стили для списка */
+.list-item-input {
+  flex-grow: 1;
+  border: none;
+  padding: 4px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+.list-item-input:focus {
+  outline: 1px solid #9F2BC2;
+}
+
+.add-item-button {
+  background: none;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  color: #555;
+  margin-top: 10px;
+}
+.add-item-button:hover {
+  background: #f9f9f9;
+  color: #333;
+}
+
+.block-label {
+  font-weight: 600; /* Полужирный */
+  font-size: 14px;
+  color: #1E1E20; /* Темно-серый */
+  margin-bottom: 15px;
+}
