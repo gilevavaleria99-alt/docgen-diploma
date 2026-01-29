@@ -54,7 +54,7 @@ export default function Header({ meta, content, saveStatus }) {
   const handleDownload = async () => {
     try {
       // 1. Генерируем файл на сервере
-      const url = 'http://localhost:5000/generate-docx';
+      const url = 'http://82.146.58.82:5000/generate-docx';
       const requestData = { meta, content };
       
       // Получаем файл как Blob (двоичные данные)

@@ -159,8 +159,8 @@ export default function Dashboard() {
       try {
         // Загружаем параллельно и список работ, и список шаблонов
         const [reportsRes, templatesRes] = await Promise.all([
-          axios.get('http://localhost:5000/reports'),
-          axios.get('http://localhost:5000/templates')
+          axios.get('http://82.146.58.82:5000/reports'),
+          axios.get('http://82.146.58.82:5000/templates')
         ]);
         setReports(reportsRes.data);
         setTemplates(templatesRes.data);
@@ -211,10 +211,10 @@ export default function Dashboard() {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:5000/reports/${modalData.id}`);
+      await axios.delete(`http://82.146.58.82:5000/reports/${modalData.id}`);
       setModalData({ ...modalData, isOpen: false });
       // Обновляем список отчетов
-      const res = await axios.get('http://localhost:5000/reports');
+      const res = await axios.get('http://82.146.58.82:5000/reports');
       setReports(res.data);
       setToastMessage('Отчет успешно удален');
     } catch (error) {
@@ -225,8 +225,8 @@ export default function Dashboard() {
   const handleDuplicate = async (id) => {
     setActiveMenuId(null);
     try {
-      await axios.post(`http://localhost:5000/reports/duplicate/${id}`);
-      const res = await axios.get('http://localhost:5000/reports');
+      await axios.post(`http://82.146.58.82:5000/reports/duplicate/${id}`);
+      const res = await axios.get('http://82.146.58.82:5000/reports');
       setReports(res.data);
       setToastMessage('Копия отчета создана');
     } catch (error) {
@@ -238,11 +238,11 @@ export default function Dashboard() {
     setActiveMenuId(null);
     try {
       // Получаем данные отчета
-      const reportRes = await axios.get(`http://localhost:5000/reports/${id}`);
+      const reportRes = await axios.get(`http://82.146.58.82:5000/reports/${id}`);
       const { meta_data, content_data } = reportRes.data;
 
       // Генерируем DOCX
-      const response = await axios.post('http://localhost:5000/generate-docx', {
+      const response = await axios.post('http://82.146.58.82:5000/generate-docx', {
         meta: meta_data,
         content: content_data
       }, { responseType: 'blob' });

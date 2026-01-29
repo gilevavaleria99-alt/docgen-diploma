@@ -88,7 +88,7 @@ function EditorPage() {
       } else {
         // --- ЛОГИКА ДЛЯ СУЩЕСТВУЮЩЕГО ОТЧЕТА (ИЗ БАЗЫ) ---
         try {
-          const response = await axios.get(`http://localhost:5000/reports/${id}`);
+          const response = await axios.get(`http://82.146.58.82:5000/reports/${id}`);
           const data = response.data;
 
           setMeta(data.meta_data);
@@ -117,7 +117,7 @@ function EditorPage() {
 
     const timerId = setTimeout(async () => {
       try {
-        const response = await axios.post('http://localhost:5000/reports', {
+        const response = await axios.post('http://82.146.58.82:5000/reports', {
           id: id,
           meta: meta,
           content: content
