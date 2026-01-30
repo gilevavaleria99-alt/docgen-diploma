@@ -8,35 +8,47 @@ const ImageModule = require('docxtemplater-image-module-free');
 const angularParser = require("docxtemplater/expressions.js");
 const { Pool } = require('pg');
 
-// 2. Настройки подключения к базе
+// 2. Настройки подключения (ЛОКАЛЬНЫЕ)
 const pool = new Pool({
   user: 'postgres',
-  password: '24092025', // Твой пароль
+  password: '24092025', // Твой локальный пароль
   host: 'localhost',
   port: 5432,
   database: 'akademik_db'
 });
 
-// 3. Настраиваем приложение
+// 3. Настройки приложения
 const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 const PORT = 5000;
 
-// 4. CORS (Разрешаем фронтенду общаться с сервером)
+// 4. CORS
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE'); // Важно: добавили DELETE
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
   next();
 });
 
 // ================= МАРШРУТЫ БАЗЫ ДАННЫХ =================
 
-// 1. Получить список всех отчетов
+// 1. Получить список отчетов (ТОЛЬКО ДЛЯ КОНКРЕТНОГО КЛИЕНТА)
 app.get('/reports', async (req, res) => {
+  const { clientId } = req.query; 
+  
+  console.log("ЗАПРОС СПИСКА. Получен clientId:", clientId);
+
   try {
-    const result = await pool.query('SELECT * FROM reports ORDER BY updated_at DESC');
+    if (!clientId) {
+        console.log("ID не получен, возвращаю пустоту.");
+        return res.json([]);
+    }
+
+    const result = await pool.query(
+      'SELECT * FROM reports WHERE client_id = $1 ORDER BY updated_at DESC', 
+      [clientId]
+    );
     res.json(result.rows);
   } catch (error) {
     console.error('Ошибка получения списка:', error);
@@ -44,18 +56,7 @@ app.get('/reports', async (req, res) => {
   }
 });
 
-// --- МАРШРУТ: ПОЛУЧИТЬ СПИСОК ШАБЛОНОВ ---
-app.get('/templates', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM templates ORDER BY id ASC');
-    res.json(result.rows);
-  } catch (error) {
-    console.error('Ошибка получения шаблонов:', error);
-    res.status(500).json({ message: 'Ошибка сервера' });
-  }
-});
-
-// 2. Получить один отчет по ID
+// 2. Получить один отчет
 app.get('/reports/:id', async (req, res) => {
   const { id } = req.params;
   if (id === 'new') return res.json(null);
@@ -70,11 +71,10 @@ app.get('/reports/:id', async (req, res) => {
   }
 });
 
-// 3. Сохранить отчет (Создать или Обновить)
+// 3. Сохранить отчет (С ПРИВЯЗКОЙ К КЛИЕНТУ)
 app.post('/reports', async (req, res) => {
-  const { id, meta, content } = req.body;
+  const { id, meta, content, clientId } = req.body; // Получаем clientId
   
-  // Защита от пустых полей
   const title = meta.title || 'Новый отчет';
   const student_name = meta.studentName || '';
   const student_group = meta.studentGroup || '';
@@ -82,14 +82,14 @@ app.post('/reports', async (req, res) => {
   try {
     let result;
     if (id === 'new') {
-      // Создаем новый
+      // Создаем новый (записываем client_id)
       result = await pool.query(
-        `INSERT INTO reports (title, student_name, student_group, meta_data, content_data)
-         VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-        [title, student_name, student_group, meta, JSON.stringify(content)]
+        `INSERT INTO reports (title, student_name, student_group, meta_data, content_data, client_id)
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+        [title, student_name, student_group, meta, JSON.stringify(content), clientId]
       );
     } else {
-      // Обновляем существующий
+      // Обновляем
       result = await pool.query(
         `UPDATE reports 
          SET title = $1, student_name = $2, student_group = $3, meta_data = $4, content_data = $5, updated_at = NOW()
@@ -116,32 +116,37 @@ app.delete('/reports/:id', async (req, res) => {
   }
 });
 
-// 5. ДУБЛИРОВАТЬ ОТЧЕТ (Исправленная версия)
+// 5. ДУБЛИРОВАТЬ ОТЧЕТ
 app.post('/reports/duplicate/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    // Получаем оригинал
     const original = await pool.query('SELECT * FROM reports WHERE id = $1', [id]);
-    if (original.rows.length === 0) return res.status(404).json({ message: 'Отчет не найден' });
+    if (original.rows.length === 0) return res.status(404).json({ message: 'Нет такого отчета' });
     
     const report = original.rows[0];
     const newTitle = `${report.title} - Копия`;
-    
-    // Копируем мету и меняем заголовок
     const newMetaData = { ...(report.meta_data || {}), title: newTitle };
 
-    // Вставляем копию
-    // ВАЖНО: report.content_data уже объект (Postgres сам распарсил JSON), 
-    // поэтому мы снова превращаем его в строку через JSON.stringify, чтобы вставить корректно.
     await pool.query(
-      `INSERT INTO reports (title, student_name, student_group, meta_data, content_data)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [newTitle, report.student_name, report.student_group, newMetaData, JSON.stringify(report.content_data)]
+      `INSERT INTO reports (title, student_name, student_group, meta_data, content_data, client_id)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [newTitle, report.student_name, report.student_group, newMetaData, report.content_data, report.client_id]
     );
 
-    res.json({ message: 'Отчет дублирован' });
+    res.json({ message: 'Дублировано' });
   } catch (error) {
     console.error('Ошибка дублирования:', error);
+    res.status(500).json({ message: 'Ошибка сервера' });
+  }
+});
+
+// 6. ПОЛУЧИТЬ ШАБЛОНЫ
+app.get('/templates', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM templates ORDER BY id ASC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Ошибка получения шаблонов:', error);
     res.status(500).json({ message: 'Ошибка сервера' });
   }
 });
@@ -151,11 +156,7 @@ app.post('/reports/duplicate/:id', async (req, res) => {
 app.post('/generate-docx', (req, res) => {
   try {
     const data = req.body;
-
-    // ЗАЩИТА ОТ ПУСТОГО ОТЧЕТА (чтобы сервер не падал)
-    if (!data.content || !Array.isArray(data.content)) {
-        data.content = [];
-    }
+    if (!data.content || !Array.isArray(data.content)) data.content = [];
 
     const templateContent = fs.readFileSync(path.resolve(__dirname, 'template.docx'), 'binary');
     const zip = new PizZip(templateContent);
@@ -168,7 +169,6 @@ app.post('/generate-docx', (req, res) => {
       },
       getSize: () => [500, 300],
     };
-    
     const imageModule = new ImageModule(imageOpts);
     
     const doc = new Docxtemplater(zip, {
@@ -181,17 +181,11 @@ app.post('/generate-docx', (req, res) => {
     const russianAlphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя';
 
     const flattenedContent = data.content.map(block => {
-      const baseBlock = {
-        isHeader: false, isParagraph: false, isList: false, isImage: false,
-      };
-
+      const baseBlock = { isHeader: false, isParagraph: false, isList: false, isImage: false };
       switch (block.type) {
-        case 'header':
-          return { ...baseBlock, isHeader: true, ...block.data };
-        case 'paragraph':
-          return { ...baseBlock, isParagraph: true, ...block.data };
-        case 'image':
-          return { ...baseBlock, isImage: true, ...block.data };
+        case 'header': return { ...baseBlock, isHeader: true, ...block.data };
+        case 'paragraph': return { ...baseBlock, isParagraph: true, ...block.data };
+        case 'image': return { ...baseBlock, isImage: true, ...block.data };
         case 'list': { 
             const { style, items } = block.data;
             if (style === 'lettered') {
@@ -210,31 +204,21 @@ app.post('/generate-docx', (req, res) => {
             }
             return { ...baseBlock, isList: true, ...block.data };
         }
-        default:
-          return baseBlock;
+        default: return baseBlock;
       }
     });
 
-    const renderData = {
-      ...data.meta,
-      content: flattenedContent
-    };
-
-    doc.render(renderData);
-
+    doc.render({ ...data.meta, content: flattenedContent });
     const generatedDoc = doc.getZip().generate({ type: 'nodebuffer' });
-
     res.setHeader('Content-Disposition', 'attachment; filename=MyReport.docx');
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     res.send(generatedDoc);
-
   } catch (error) {
-    console.error('Ошибка при генерации документа:', error);
-    res.status(500).json({ message: 'Произошла ошибка на сервере' });
+    console.error('Ошибка генерации документа:', error);
+    res.status(500).json({ message: 'Ошибка генерации' });
   }
 });
 
-// 5. Запускаем сервер
+// 5. Запуск
 app.listen(PORT, () => {
   console.log(`Сервер успешно запущен на порту ${PORT}`);
 });
