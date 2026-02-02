@@ -63,7 +63,7 @@ export default function Dashboard() {
   try {
     const clientId = getClientId(); // Получаем наш ID
     // ВАЖНО: добавляем ?clientId=... в конец адреса
-    const response = await axios.get(`http://82.146.58.82:5000/reports?clientId=${clientId}`);
+    const response = await axios.get(`https://lab-gen.ru:5000/reports?clientId=${clientId}`);
     setReports(response.data);
   } catch (error) {
     console.error('Ошибка:', error);
@@ -80,8 +80,8 @@ export default function Dashboard() {
         // Загружаем отчеты (с ID) и шаблоны (общие)
         // ВАЖНО: Используем localhost для тестов в этой ветке
         const [reportsRes, templatesRes] = await Promise.all([
-          axios.get('http://82.146.58.82:5000/reports', { params: { clientId } }),
-          axios.get('http://82.146.58.82:5000/templates')
+          axios.get('https://lab-gen.ru:5000/reports', { params: { clientId } }),
+          axios.get('https://lab-gen.ru:5000/templates')
         ]);
         setReports(reportsRes.data);
         setTemplates(templatesRes.data);
@@ -122,7 +122,7 @@ export default function Dashboard() {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://82.146.58.82:5000/reports/${modalData.id}`);
+      await axios.delete(`https://lab-gen.ru:5000/reports/${modalData.id}`);
       setModalData({ ...modalData, isOpen: false });
       fetchReports(); // Обновляем список после удаления
       setToastMessage('Отчет успешно удален');
@@ -134,7 +134,7 @@ export default function Dashboard() {
   const handleDuplicate = async (id) => {
     setActiveMenuId(null);
     try {
-      await axios.post(`http://82.146.58.82:5000/reports/duplicate/${id}`);
+      await axios.post(`https://lab-gen.ru:5000/reports/duplicate/${id}`);
       fetchReports(); // Обновляем список после дублирования
       setToastMessage('Копия отчета создана');
     } catch (error) {
@@ -145,10 +145,10 @@ export default function Dashboard() {
   const handleDownload = async (id) => {
     setActiveMenuId(null);
     try {
-      const reportRes = await axios.get(`http://82.146.58.82:5000/reports/${id}`);
+      const reportRes = await axios.get(`https://lab-gen.ru:5000/reports/${id}`);
       const { meta_data, content_data } = reportRes.data;
 
-      const response = await axios.post('http://82.146.58.82:5000/generate-docx', {
+      const response = await axios.post('https://lab-gen.ru:5000/generate-docx', {
         meta: meta_data,
         content: content_data
       }, { responseType: 'blob' });

@@ -15,7 +15,7 @@ const getClientId = () => {
     clientId = 'user_' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('akademik_client_id', clientId);
   }
-  return clientId;
+  return clientId;ы
 };
 
 // Запасной шаблон
@@ -26,7 +26,7 @@ const fallbackStructure = [
 ];
 
 // Настройка API URL
-const API_URL = 'http://82.146.58.82:5000'; 
+const API_URL = 'https://lab-gen.ru:5000'; 
 
 function EditorPage() {
   const { id } = useParams();
