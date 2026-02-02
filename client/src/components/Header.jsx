@@ -54,7 +54,7 @@ export default function Header({ meta, content, saveStatus }) {
   const handleDownload = async () => {
     try {
       // 1. Генерируем файл на сервере
-      const url = 'https://lab-gen.ru:5000/generate-docx';
+      const url = 'https://lab-gen.ru/api/generate-docx';
       const requestData = { meta, content };
       
       // Получаем файл как Blob (двоичные данные)

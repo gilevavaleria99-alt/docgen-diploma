@@ -26,7 +26,7 @@ const fallbackStructure = [
 ];
 
 // Настройка API URL
-const API_URL = 'https://lab-gen.ru:5000'; 
+const API_URL = 'https://lab-gen.ru/api'; 
 
 function EditorPage() {
   const { id } = useParams();
