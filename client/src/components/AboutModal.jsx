@@ -27,36 +27,46 @@ const styles = {
 
 export default function AboutModal({ isOpen, onClose }) {
   if (!isOpen) return null;
+  
+    return (
+        <div style={styles.overlay} onClick={onClose}>
+        <div style={styles.modal} onClick={e => e.stopPropagation()}>
+            <div style={styles.title}>LABGEN</div>
+            <div style={styles.subtitle}>v1.1 STABLE RELEASE</div>
+            
+            <div style={styles.section}>
+            <div style={styles.label}>Автор и разработчик</div>
+            {/* Текст стал темнее и жирнее для читаемости */}
+            <p style={{margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#1E1E20'}}>
+                Гилева Валерия Артемовна
+            </p>
+            <p style={{margin: '8px 0 0 0', fontSize: '14px', color: '#444', fontWeight: '500'}}>
+                Студентка группы БИ-41.1
+            </p>
+            <p style={{margin: '4px 0 0 0', fontSize: '12px', color: '#9F2BC2', fontStyle: 'italic'}}>
+                Выпускная квалификационная работа
+            </p>
+            </div>
 
-  return (
-    <div style={styles.overlay} onClick={onClose}>
-      <div style={styles.modal} onClick={e => e.stopPropagation()}>
-        <div style={styles.title}>LABGEN</div>
-        <div style={styles.subtitle}>v1.1 STABLE RELEASE</div>
-        
-        <div style={styles.section}>
-          <div style={styles.label}>Разработчик</div>
-          <p style={{margin: 0, fontSize: '16px', fontWeight: '600'}}>Гилева Валерия Александровна</p>
-          <p style={{margin: '4px 0 0 0', fontSize: '13px', color: '#666'}}>Студентка группы БИ-41</p>
+            <div style={styles.section}>
+            <div style={styles.label}>Технологический стек</div>
+            <div style={styles.techItem}><FaCode color="#9F2BC2" /> <b>Frontend:</b> React 18 + Vite</div>
+            <div style={styles.techItem}><FaServer color="#9F2BC2" /> <b>Backend:</b> Node.js (Express)</div>
+            <div style={styles.techItem}><FaDatabase color="#9F2BC2" /> <b>Database:</b> PostgreSQL 15</div>
+            <div style={styles.techItem}><FaLayerGroup color="#9F2BC2" /> <b>Cloud:</b> Ubuntu VPS + Nginx</div>
+            </div>
+
+            <button 
+            style={styles.button} 
+            onClick={onClose}
+            >
+            Закрыть
+            </button>
+            
+            <div style={{marginTop: '25px', fontSize: '11px', color: '#bbb', letterSpacing: '0.5px'}}>
+            © 2026 LABGEN ENGINE. ВСЕ ПРАВА ЗАЩИЩЕНЫ.
+            </div>
         </div>
-
-        <div style={styles.section}>
-          <div style={styles.label}>Технологический стек</div>
-          <div style={styles.techItem}><FaCode color="#9F2BC2" /> <b>Frontend:</b> React + Vite</div>
-          <div style={styles.techItem}><FaServer color="#9F2BC2" /> <b>Backend:</b> Node.js (Express)</div>
-          <div style={styles.techItem}><FaDatabase color="#9F2BC2" /> <b>Database:</b> PostgreSQL</div>
-          <div style={styles.techItem}><FaLayerGroup color="#9F2BC2" /> <b>Architecture:</b> PWA + Nginx Proxy</div>
         </div>
-
-        <button 
-          style={styles.button} 
-          onClick={onClose}
-          onMouseOver={e => e.target.style.opacity = '0.8'}
-          onMouseOut={e => e.target.style.opacity = '1'}
-        >
-          Понятно
-        </button>
-      </div>
-    </div>
-  );
+    );
 }
