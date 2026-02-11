@@ -75,32 +75,38 @@ app.get('/reports/:id', async (req, res) => {
 app.post('/reports', async (req, res) => {
   const { id, meta, content, clientId } = req.body;
   
-  // Выводим в консоль для проверки
-  console.log(`Сохранение. Отчет: ${id}, Блоков: ${content?.length}, Клиент: ${clientId}`);
+  // Логируем для отладки
+  console.log(`Попытка сохранения. Отчет: ${id}, Клиент: ${clientId}, Размер контента: ${JSON.stringify(content).length} символов`);
 
   const title = meta.title || 'Новый отчет';
   const student_name = meta.studentName || '';
   const student_group = meta.studentGroup || '';
 
   try {
+    // ПРИНУДИТЕЛЬНО превращаем объекты в JSON-строки перед отправкой в БД
+    // Это самый надежный способ для больших объемов данных
+    const metaDataJson = JSON.stringify(meta);
+    const contentDataJson = JSON.stringify(content);
+
     let result;
     if (id === 'new') {
       result = await pool.query(
         `INSERT INTO reports (title, student_name, student_group, meta_data, content_data, client_id)
-         VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-        [title, student_name, student_group, meta, content, clientId || 'anonymous']
+         VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6) RETURNING id`,
+        [title, student_name, student_group, metaDataJson, contentDataJson, clientId || 'anonymous']
       );
     } else {
       result = await pool.query(
         `UPDATE reports 
-         SET title = $1, student_name = $2, student_group = $3, meta_data = $4, content_data = $5, client_id = $6, updated_at = NOW()
+         SET title = $1, student_name = $2, student_group = $3, meta_data = $4::jsonb, content_data = $5::jsonb, client_id = $6, updated_at = NOW()
          WHERE id = $7 RETURNING id`,
-        [title, student_name, student_group, meta, content, clientId || 'anonymous', id]
+        [title, student_name, student_group, metaDataJson, contentDataJson, clientId || 'anonymous', id]
       );
     }
     res.json({ id: result.rows[0].id });
   } catch (error) {
-    console.error('КРИТИЧЕСКАЯ ОШИБКА БД:', error);
+    console.error('КРИТИЧЕСКАЯ ОШИБКА БД:', error.message);
+    // Если ошибка всё равно лезет, выведем кусочек проблемного JSON в логи сервера
     res.status(500).json({ message: 'Ошибка при записи в базу данных' });
   }
 });
