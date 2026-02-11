@@ -71,9 +71,9 @@ app.get('/reports/:id', async (req, res) => {
   }
 });
 
-// 3. Сохранить отчет (С ПРИВЯЗКОЙ К КЛИЕНТУ)
+// 3. Сохранить отчет
 app.post('/reports', async (req, res) => {
-  const { id, meta, content, clientId } = req.body; // Получаем clientId
+  const { id, meta, content, clientId } = req.body;
   
   const title = meta.title || 'Новый отчет';
   const student_name = meta.studentName || '';
@@ -82,19 +82,19 @@ app.post('/reports', async (req, res) => {
   try {
     let result;
     if (id === 'new') {
-      // Создаем новый (записываем client_id)
+      // Создаем новый
       result = await pool.query(
         `INSERT INTO reports (title, student_name, student_group, meta_data, content_data, client_id)
          VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-        [title, student_name, student_group, meta, JSON.stringify(content), clientId]
+        [title, student_name, student_group, meta, content, clientId] // Убрали JSON.stringify
       );
     } else {
-      // Обновляем
+      // Обновляем (добавили clientId и сюда для надежности)
       result = await pool.query(
         `UPDATE reports 
-         SET title = $1, student_name = $2, student_group = $3, meta_data = $4, content_data = $5, updated_at = NOW()
-         WHERE id = $6 RETURNING id`,
-        [title, student_name, student_group, meta, JSON.stringify(content), id]
+         SET title = $1, student_name = $2, student_group = $3, meta_data = $4, content_data = $5, client_id = $6, updated_at = NOW()
+         WHERE id = $7 RETURNING id`,
+        [title, student_name, student_group, meta, content, clientId, id] // Убрали JSON.stringify
       );
     }
     res.json({ id: result.rows[0].id, message: 'Успешно сохранено' });
@@ -121,19 +121,30 @@ app.post('/reports/duplicate/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const original = await pool.query('SELECT * FROM reports WHERE id = $1', [id]);
-    if (original.rows.length === 0) return res.status(404).json({ message: 'Нет такого отчета' });
+    if (original.rows.length === 0) return res.status(404).json({ message: 'Отчет не найден' });
     
     const report = original.rows[0];
     const newTitle = `${report.title} - Копия`;
-    const newMetaData = { ...(report.meta_data || {}), title: newTitle };
+    
+    // ВАЖНО: берем мета-данные и меняем заголовок
+    const newMetaData = { ...report.meta_data, title: newTitle };
 
+    // ВАЖНО: Для PostgreSQL JSONB колонки не нужно делать JSON.stringify, 
+    // если мы передаем объект. Библиотека 'pg' сама всё сделает.
     await pool.query(
       `INSERT INTO reports (title, student_name, student_group, meta_data, content_data, client_id)
        VALUES ($1, $2, $3, $4, $5, $6)`,
-      [newTitle, report.student_name, report.student_group, newMetaData, report.content_data, report.client_id]
+      [
+        newTitle, 
+        report.student_name, 
+        report.student_group, 
+        newMetaData, 
+        report.content_data, // Передаем как есть, без stringify
+        report.client_id
+      ]
     );
 
-    res.json({ message: 'Дублировано' });
+    res.json({ message: 'Отчет дублирован' });
   } catch (error) {
     console.error('Ошибка дублирования:', error);
     res.status(500).json({ message: 'Ошибка сервера' });
