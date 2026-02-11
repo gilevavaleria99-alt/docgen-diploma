@@ -127,34 +127,40 @@ app.delete('/reports/:id', async (req, res) => {
 app.post('/reports/duplicate/:id', async (req, res) => {
   const { id } = req.params;
   try {
+    // 1. Получаем оригинал
     const original = await pool.query('SELECT * FROM reports WHERE id = $1', [id]);
     if (original.rows.length === 0) return res.status(404).json({ message: 'Отчет не найден' });
     
     const report = original.rows[0];
     const newTitle = `${report.title} - Копия`;
     
-    // ВАЖНО: берем мета-данные и меняем заголовок
+    // 2. Формируем мета-данные для копии
     const newMetaData = { ...report.meta_data, title: newTitle };
 
-    // ВАЖНО: Для PostgreSQL JSONB колонки не нужно делать JSON.stringify, 
-    // если мы передаем объект. Библиотека 'pg' сама всё сделает.
+    // 3. ПРИНУДИТЕЛЬНО превращаем объекты в JSON-строки (как и при сохранении)
+    // Это решит проблему с ошибкой 22P02 при дублировании тяжелых отчетов
+    const metaDataJson = JSON.stringify(newMetaData);
+    const contentDataJson = JSON.stringify(report.content_data);
+
+    // 4. Вставляем копию с явным приведением типов ::jsonb
     await pool.query(
       `INSERT INTO reports (title, student_name, student_group, meta_data, content_data, client_id)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
+       VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6)`,
       [
         newTitle, 
         report.student_name, 
         report.student_group, 
-        newMetaData, 
-        report.content_data, // Передаем как есть, без stringify
+        metaDataJson, 
+        contentDataJson, 
         report.client_id
       ]
     );
 
+    console.log(`Успешное дублирование отчета ID: ${id}`);
     res.json({ message: 'Отчет дублирован' });
   } catch (error) {
-    console.error('Ошибка дублирования:', error);
-    res.status(500).json({ message: 'Ошибка сервера' });
+    console.error('ОШИБКА ДУБЛИРОВАНИЯ:', error.message);
+    res.status(500).json({ message: 'Ошибка сервера при дублировании' });
   }
 });
 
