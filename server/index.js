@@ -75,6 +75,9 @@ app.get('/reports/:id', async (req, res) => {
 app.post('/reports', async (req, res) => {
   const { id, meta, content, clientId } = req.body;
   
+  // Выводим в консоль для проверки
+  console.log(`Сохранение. Отчет: ${id}, Блоков: ${content?.length}, Клиент: ${clientId}`);
+
   const title = meta.title || 'Новый отчет';
   const student_name = meta.studentName || '';
   const student_group = meta.studentGroup || '';
@@ -82,25 +85,23 @@ app.post('/reports', async (req, res) => {
   try {
     let result;
     if (id === 'new') {
-      // Создаем новый
       result = await pool.query(
         `INSERT INTO reports (title, student_name, student_group, meta_data, content_data, client_id)
          VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-        [title, student_name, student_group, meta, content, clientId] // Убрали JSON.stringify
+        [title, student_name, student_group, meta, content, clientId || 'anonymous']
       );
     } else {
-      // Обновляем (добавили clientId и сюда для надежности)
       result = await pool.query(
         `UPDATE reports 
          SET title = $1, student_name = $2, student_group = $3, meta_data = $4, content_data = $5, client_id = $6, updated_at = NOW()
          WHERE id = $7 RETURNING id`,
-        [title, student_name, student_group, meta, content, clientId, id] // Убрали JSON.stringify
+        [title, student_name, student_group, meta, content, clientId || 'anonymous', id]
       );
     }
-    res.json({ id: result.rows[0].id, message: 'Успешно сохранено' });
+    res.json({ id: result.rows[0].id });
   } catch (error) {
-    console.error('Ошибка сохранения:', error);
-    res.status(500).json({ message: 'Ошибка сервера' });
+    console.error('КРИТИЧЕСКАЯ ОШИБКА БД:', error);
+    res.status(500).json({ message: 'Ошибка при записи в базу данных' });
   }
 });
 
