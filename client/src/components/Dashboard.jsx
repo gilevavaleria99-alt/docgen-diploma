@@ -8,6 +8,7 @@ import logo from '../assets/logo.png';
 import ConfirmationModal from './ConfirmationModal';
 import Toast from './Toast';
 import TemplateModal from './TemplateModal';
+import AboutModal from './AboutModal';
 
 const getClientId = () => {
   let clientId = localStorage.getItem('akademik_client_id');
@@ -36,6 +37,7 @@ const styles = {
 };
 
 export default function Dashboard() {
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [reports, setReports] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -237,12 +239,13 @@ export default function Dashboard() {
 
         <div style={styles.buttonsArea}>
           <button onClick={handleCreateClick} style={styles.createBtn}> <FaPlus /> Создать новый отчет </button>
-          <button style={styles.infoBtn}> <FaInfoCircle /> О приложении </button>
+          <button style={styles.infoBtn} onClick={() => setIsAboutOpen(true)}> <FaInfoCircle /> О приложении </button>
         </div>
       </div>
 
       <TemplateModal isOpen={isTemplateModalOpen} templates={templates} onSelect={handleTemplateSelect} onClose={() => setIsTemplateModalOpen(false)} />
       <ConfirmationModal isOpen={modalData.isOpen} title="Удаление отчета" message={`Вы уверены, что хотите удалить отчет "${modalData.title}"?`} onConfirm={confirmDelete} onCancel={() => setModalData({...modalData, isOpen: false})} />
+      <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
       {toastMessage && <Toast message={toastMessage} onClose={() => setToastMessage(null)} />}
     </div>
   );
