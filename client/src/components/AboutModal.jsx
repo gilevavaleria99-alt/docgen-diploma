@@ -32,7 +32,7 @@ export default function AboutModal({ isOpen, onClose }) {
         <div style={styles.overlay} onClick={onClose}>
         <div style={styles.modal} onClick={e => e.stopPropagation()}>
             <div style={styles.title}>LABGEN</div>
-            <div style={styles.subtitle}>v1.1 STABLE RELEASE</div>
+            <div style={styles.subtitle}>v1.0</div>
             
             <div style={styles.section}>
             <div style={styles.label}>Автор и разработчик</div>
@@ -64,7 +64,7 @@ export default function AboutModal({ isOpen, onClose }) {
             </button>
             
             <div style={{marginTop: '25px', fontSize: '11px', color: '#bbb', letterSpacing: '0.5px'}}>
-            © 2026 LABGEN ENGINE. ВСЕ ПРАВА ЗАЩИЩЕНЫ.
+            © 2026 LABGEN. ВСЕ ПРАВА ЗАЩИЩЕНЫ.
             </div>
         </div>
         </div>
