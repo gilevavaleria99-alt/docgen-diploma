@@ -7,6 +7,7 @@ const path = require('path');
 const ImageModule = require('docxtemplater-image-module-free');
 const angularParser = require("docxtemplater/expressions.js");
 const { Pool } = require('pg');
+const sizeOf = require('image-size');
 
 // 2. Настройки подключения (ЛОКАЛЬНЫЕ)
 const pool = new Pool({
@@ -191,7 +192,17 @@ app.post('/generate-docx', (req, res) => {
         const base64Data = tag.split(",").pop();
         return Buffer.from(base64Data, 'base64');
       },
-      getSize: () => [500, 300],
+      getSize: (imgBuffer) => {
+        const dimensions = sizeOf(imgBuffer);
+        const maxWidth = 600;
+
+        const ratio = dimensions.width / dimensions.height;
+
+        if (dimensions.width > maxWidth) {
+          return [maxWidth, Math.round(maxWidth / ratio)];
+        }
+        return [dimensions.width, dimensions.height];
+      },
     };
     const imageModule = new ImageModule(imageOpts);
     
