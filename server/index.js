@@ -7,7 +7,7 @@ const path = require('path');
 const ImageModule = require('docxtemplater-image-module-free');
 const angularParser = require("docxtemplater/expressions.js");
 const { Pool } = require('pg');
-const sizeOf = require('image-size');
+const sizeOf = require('image-size').imageSize || require('image-size');
 
 // 2. Настройки подключения (ЛОКАЛЬНЫЕ)
 const pool = new Pool({
