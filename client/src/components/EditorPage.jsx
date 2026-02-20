@@ -7,6 +7,8 @@ import Toolbar from './Toolbar';
 import Workspace from './Workspace';
 import MetadataForm from './MetadataForm';
 import Header from './Header';
+import GuidedTour from './GuidedTour';
+import ConfirmationModal from './ConfirmationModal';
 
 // Функция для получения уникального ID этого браузера
 const getClientId = () => {
@@ -15,10 +17,10 @@ const getClientId = () => {
     clientId = 'user_' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('akademik_client_id', clientId);
   }
-  return clientId;ы
+  return clientId;
 };
 
-// Запасной шаблон
+// Запасной шаблон (на случай критического сбоя)
 const fallbackStructure = [
   { id: uuidv4(), type: 'paragraph', data: { text: 'Цель работы: …' } },
   { id: uuidv4(), type: 'paragraph', data: { text: 'Задание 1: …' } },
@@ -35,10 +37,16 @@ function EditorPage() {
 
   const selectedTemplate = location.state?.templateData;
   const [saveStatus, setSaveStatus] = useState('idle');
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   
-  // 1. Используем Ref для мгновенного отслеживания ID без перерисовок
+  // СОСТОЯНИЕ ДЛЯ ПОДСКАЗОК
+  const [runTour, setRunTour] = useState(false); 
+
   const currentIdRef = useRef(id);
   const isFirstLoad = useRef(true);
+  
+  // Реф для хранения исходного контента для сброса
+  const initialContentRef = useRef([]);
 
   const [meta, setMeta] = useState({
     reportType: selectedTemplate?.meta_default?.reportType || 'ЛАБОРАТОРНАЯ РАБОТА',
@@ -53,15 +61,13 @@ function EditorPage() {
 
   const [content, setContent] = useState([]);
 
-  // Синхронизируем Ref с URL при переходе между отчетами
   useEffect(() => {
     currentIdRef.current = id;
   }, [id]);
 
-  // 2. ЗАГРУЗКА ДАННЫХ
+  // ЗАГРУЗКА ДАННЫХ
   useEffect(() => {
     const loadReport = async () => {
-      // Блокируем автосохранение на время загрузки
       isFirstLoad.current = true; 
 
       if (id === 'new') {
@@ -73,15 +79,17 @@ function EditorPage() {
             }
             return { ...block, id: uuidv4(), data: newBlockData };
           });
+          
           setContent(contentWithIds);
+          initialContentRef.current = contentWithIds; // Запоминаем для сброса
+
           if (selectedTemplate.meta_default) {
             setMeta(prev => ({ ...prev, ...selectedTemplate.meta_default }));
           }
         } else {
           setContent(fallbackStructure);
+          initialContentRef.current = fallbackStructure;
         }
-        // Даем небольшую задержку, чтобы React успел отрисовать шаблон, 
-        // прежде чем разрешить автосохранение
         setTimeout(() => { isFirstLoad.current = false; }, 1000);
       } else {
         try {
@@ -89,6 +97,11 @@ function EditorPage() {
           const data = response.data;
           setMeta(data.meta_data);
           setContent(data.content_data);
+          
+          // Для существующих отчетов "сброс" - это возврат к тому виду, 
+          // в котором отчет был открыт в начале этой сессии
+          initialContentRef.current = data.content_data; 
+
           setTimeout(() => { isFirstLoad.current = false; }, 1000);
         } catch (error) {
           console.error('Ошибка загрузки:', error);
@@ -98,33 +111,26 @@ function EditorPage() {
       }
     };
     loadReport();
-  }, [id, selectedTemplate]); // Убрали лишние зависимости
+  }, [id, selectedTemplate, navigate]);
 
 
-  // 3. АВТОСОХРАНЕНИЕ
+  // АВТОСОХРАНЕНИЕ
   useEffect(() => {
     if (isFirstLoad.current) return;
-
     setSaveStatus('saving');
-
     const timerId = setTimeout(async () => {
       try {
-        // Берем актуальный ID из Ref (это может быть 'new' или число)
         const idToSave = currentIdRef.current;
-
         const response = await axios.post(`${API_URL}/reports`, {
           id: idToSave,
           meta: meta,
           content: content,
           clientId: getClientId()
         });
-
         setSaveStatus('saved');
-        
-        // Если это было первое сохранение нового отчета
         if (idToSave === 'new') {
           const newId = response.data.id;
-          currentIdRef.current = newId; // Сразу обновляем Ref, чтобы не было дублей
+          currentIdRef.current = newId;
           navigate(`/editor/${newId}`, { replace: true });
         }
       } catch (error) {
@@ -132,12 +138,11 @@ function EditorPage() {
         setSaveStatus('error');
       }
     }, 2000);
-
     return () => clearTimeout(timerId);
-  }, [meta, content]); // Следим только за изменениями данных
+  }, [meta, content, navigate]);
 
 
-  // 4. PASTE И RESET 
+  // PASTE
   useEffect(() => {
     const handlePaste = (event) => {
       const clipboardItems = event.clipboardData.items;
@@ -161,40 +166,62 @@ function EditorPage() {
   }, []);
 
   const handleResetContent = () => {
-    if (window.confirm('Сбросить отчет к начальному шаблону?')) {
-        let resetSource = selectedTemplate?.content_default || fallbackStructure;
-        const resetContent = resetSource.map(block => {
-            const newBlockData = { ...block.data };
-            if (newBlockData.text && typeof newBlockData.text === 'string') {
-                newBlockData.text = newBlockData.text.replace(/\\n/g, '\n');
-            }
-            return { ...block, id: uuidv4(), data: newBlockData };
-        });
-        setContent(resetContent);
-    }
+    setIsResetModalOpen(true);
   };
 
+  const confirmReset = () => {
+    if (initialContentRef.current && initialContentRef.current.length > 0) {
+      // Создаем глубокую копию и новые ID, чтобы React обновил компоненты
+      const resetContent = initialContentRef.current.map(block => ({
+        ...block,
+        id: uuidv4() 
+      }));
+      setContent(resetContent);
+    } else {
+      // Если по какой-то причине реф пуст, используем запасной вариант
+      setContent(fallbackStructure.map(b => ({...b, id: uuidv4()})));
+    }
+    setIsResetModalOpen(false);
+  }
+
   // СТИЛИ 
-  const appStyles = { display: 'flex', fontFamily: 'sans-serif', height: '100vh', backgroundColor: '#F8F9FA' };
+  const appStyles = { display: 'flex', fontFamily: 'sans-serif', height: '100vh', width: '100vw', backgroundColor: '#F8F9FA', overflow: 'hidden'};
   const toolbarContainerStyles = { width: '250px', flexShrink: 0, borderRight: '1px solid #e0e0e0' };
   const mainContentStyles = { flexGrow: 1, display: 'flex', flexDirection: 'column' };
-  const workspaceContainerStyles = { flexGrow: 1, padding: '20px', overflowY: 'auto' };
-  const metadataStyles = { width: '350px', flexShrink: 0, padding: '20px', borderLeft: '1px solid #e0e0e0', backgroundColor: 'white', position: 'relative', zIndex: 5 };
+  const workspaceContainerStyles = { flexGrow: 1, padding: '20px', overflowY: 'auto', height: 'calc(100vh - 60px)'};
+  const metadataStyles = { width: '350px', flexShrink: 0, padding: '20px', borderLeft: '1px solid #e0e0e0', backgroundColor: 'white', position: 'relative', zIndex: 5, height: '100vh', overflowY: 'auto' };
 
   return (
     <div style={appStyles}>
-      <div style={toolbarContainerStyles}>
-        <Toolbar setContent={setContent} handleReset={handleResetContent} />
+      <div style={toolbarContainerStyles} className="tour-toolbar">
+        <Toolbar 
+          setContent={setContent} 
+          handleReset={handleResetContent} 
+          onStartTour={() => setRunTour(true)} 
+        />
       </div>
+
       <div style={mainContentStyles}>
         <Header meta={meta} content={content} saveStatus={saveStatus} />
-        <div style={workspaceContainerStyles}>
+        
+        <div style={workspaceContainerStyles} className="tour-workspace">
           <Workspace content={content} setContent={setContent} />
         </div>
       </div>
-      <div style={metadataStyles}>
+
+      <div style={metadataStyles} className="tour-metadata">
         <MetadataForm meta={meta} setMeta={setMeta} />
       </div>
+
+      <GuidedTour run={runTour} setRun={setRunTour} />
+      
+      <ConfirmationModal 
+        isOpen={isResetModalOpen} 
+        title="Сброс изменений" 
+        message="Вы уверены, что хотите сбросить отчет к начальному шаблону? Все внесенные правки будут удалены." 
+        onConfirm={confirmReset} 
+        onCancel={() => setIsResetModalOpen(false)}
+      />
     </div>
   );
 }

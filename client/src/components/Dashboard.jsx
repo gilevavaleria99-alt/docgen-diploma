@@ -244,7 +244,7 @@ export default function Dashboard() {
       </div>
 
       <TemplateModal isOpen={isTemplateModalOpen} templates={templates} onSelect={handleTemplateSelect} onClose={() => setIsTemplateModalOpen(false)} />
-      <ConfirmationModal isOpen={modalData.isOpen} title="Удаление отчета" message={`Вы уверены, что хотите удалить отчет "${modalData.title}"?`} onConfirm={confirmDelete} onCancel={() => setModalData({...modalData, isOpen: false})} />
+      <ConfirmationModal isOpen={modalData.isOpen} title="Удаление отчета" message={`Вы уверены, что хотите удалить отчет "${modalData.title}"?`} onConfirm={confirmDelete} onCancel={() => setModalData({...modalData, isOpen: false})} confirmLabel="Удалить" />
       <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
       {toastMessage && <Toast message={toastMessage} onClose={() => setToastMessage(null)} />}
     </div>

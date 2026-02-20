@@ -5,7 +5,7 @@ import './Toolbar.css';
 import { FaPlus, FaQuestionCircle, FaSyncAlt, FaArrowLeft } from 'react-icons/fa'; 
 import logo from '../assets/logo.png';
 
-export default function Toolbar({ setContent, handleReset }) {
+export default function Toolbar({ setContent, handleReset, onStartTour }) {
   const [isHeaderOpen, setIsHeaderOpen] = useState(false);
   const [isListOpen, setIsListOpen] = useState(false);
 
@@ -59,7 +59,11 @@ export default function Toolbar({ setContent, handleReset }) {
     reader.readAsDataURL(file);
   };
 
-  const handleShowHints = () => alert('Функционал подсказок будет реализован позже.');
+  const handleShowHints = () => {
+    if (onStartTour) {
+      onStartTour();
+    }
+  };
   const handleResetAll = () => {
     handleReset();
   };
