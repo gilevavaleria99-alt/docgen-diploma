@@ -72,13 +72,7 @@ function EditorPage() {
 
       if (id === 'new') {
         if (selectedTemplate) {
-          const contentWithIds = selectedTemplate.content_default.map(block => {
-            const newBlockData = { ...block.data };
-            if (newBlockData.text && typeof newBlockData.text === 'string') {
-                newBlockData.text = newBlockData.text.replace(/\\n/g, '\n');
-            }
-            return { ...block, id: uuidv4(), data: newBlockData };
-          });
+          formatContent(selectedTemplate.content_default);
           
           setContent(contentWithIds);
           initialContentRef.current = contentWithIds; // Запоминаем для сброса
@@ -169,20 +163,27 @@ function EditorPage() {
     setIsResetModalOpen(true);
   };
 
+  const formatContent = (contentArray) => {
+    return contentArray.map(block => {
+      const newBlockData = { ...block.data };
+      // Исправляем технические переносы строк на настоящие
+      if (newBlockData.text && typeof newBlockData.text === 'string') {
+        newBlockData.text = newBlockData.text.replace(/\\n/g, '\n');
+      }
+      return { ...block, id: uuidv4(), data: newBlockData };
+    });
+  };
+
   const confirmReset = () => {
     if (selectedTemplate && selectedTemplate.content_default) {
       // Создаем глубокую копию и новые ID, чтобы React обновил компоненты
-      const resetContent = selectedTemplate.content_default.map(block => ({
-        ...block,
-        id: uuidv4() 
-      }));
+      const resetContent = formatContent(selectedTemplate.content_default);
       setContent(resetContent);
     } else if (initialContentRef.current && initialContentRef.current.length > 0) {
-      const resetContent = initialContentRef.current.map(block => ({
+      setContent(initialContentRef.current.map(block => ({
         ...block,
         id: uuidv4()
-      }));
-      setContent(resetContent);
+      })));
     }
     setIsResetModalOpen(false);
   }
