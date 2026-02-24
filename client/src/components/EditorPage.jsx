@@ -170,16 +170,19 @@ function EditorPage() {
   };
 
   const confirmReset = () => {
-    if (initialContentRef.current && initialContentRef.current.length > 0) {
+    if (selectedTemplate && selectedTemplate.content_default) {
       // Создаем глубокую копию и новые ID, чтобы React обновил компоненты
-      const resetContent = initialContentRef.current.map(block => ({
+      const resetContent = selectedTemplate.content_default.map(block => ({
         ...block,
         id: uuidv4() 
       }));
       setContent(resetContent);
-    } else {
-      // Если по какой-то причине реф пуст, используем запасной вариант
-      setContent(fallbackStructure.map(b => ({...b, id: uuidv4()})));
+    } else if (initialContentRef.current && initialContentRef.current.length > 0) {
+      const resetContent = initialContentRef.current.map(block => ({
+        ...block,
+        id: uuidv4()
+      }));
+      setContent(resetContent);
     }
     setIsResetModalOpen(false);
   }
