@@ -125,7 +125,7 @@ export default function Header({ meta, content, saveStatus }) {
       </div>
 
       <div style={buttonGroupStyles}>
-        <button style={primaryButton} onClick={() => alert('Предпросмотр скоро будет!')}>Предпросмотр</button>
+        {/*<button style={primaryButton} onClick={() => alert('Предпросмотр скоро будет!')}>Предпросмотр</button> */}
         <button style={secondaryButton} onClick={handleDownload} className="tour-download">Скачать .docx</button>
       </div>
     </div>
