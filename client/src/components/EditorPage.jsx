@@ -72,7 +72,13 @@ function EditorPage() {
 
       if (id === 'new') {
         if (selectedTemplate) {
-          formatContent(selectedTemplate.content_default);
+          const contentWithIds = selectedTemplate.content_default.map(block => {
+            const newBlockData = { ...block.data };
+            if (newBlockData.text && typeof newBlockData.text === 'string') {
+                newBlockData.text = newBlockData.text.replace(/\\n/g, '\n');
+            }
+            return { ...block, id: uuidv4(), data: newBlockData };
+          });
           
           setContent(contentWithIds);
           initialContentRef.current = contentWithIds; // Запоминаем для сброса
@@ -163,27 +169,17 @@ function EditorPage() {
     setIsResetModalOpen(true);
   };
 
-  const formatContent = (contentArray) => {
-    return contentArray.map(block => {
-      const newBlockData = { ...block.data };
-      // Исправляем технические переносы строк на настоящие
-      if (newBlockData.text && typeof newBlockData.text === 'string') {
-        newBlockData.text = newBlockData.text.replace(/\\n/g, '\n');
-      }
-      return { ...block, id: uuidv4(), data: newBlockData };
-    });
-  };
-
   const confirmReset = () => {
-    if (selectedTemplate && selectedTemplate.content_default) {
+    if (initialContentRef.current && initialContentRef.current.length > 0) {
       // Создаем глубокую копию и новые ID, чтобы React обновил компоненты
-      const resetContent = formatContent(selectedTemplate.content_default);
-      setContent(resetContent);
-    } else if (initialContentRef.current && initialContentRef.current.length > 0) {
-      setContent(initialContentRef.current.map(block => ({
+      const resetContent = initialContentRef.current.map(block => ({
         ...block,
-        id: uuidv4()
-      })));
+        id: uuidv4() 
+      }));
+      setContent(resetContent);
+    } else {
+      // Если по какой-то причине реф пуст, используем запасной вариант
+      setContent(fallbackStructure.map(b => ({...b, id: uuidv4()})));
     }
     setIsResetModalOpen(false);
   }
