@@ -74,7 +74,7 @@ export default function Toolbar({ setContent, handleReset, onStartTour }) {
 
   return (
     <div className="toolbar">
-      <div className="toolbar-header">
+      <div className="toolbar-header" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
         <img src={logo} alt="Логотип" className="logo" />
         <span className="toolbar-title">LABGEN</span>
       </div>
