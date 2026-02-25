@@ -110,7 +110,7 @@ export default function Toolbar({ setContent, handleReset, onStartTour }) {
            </button>
            {isListOpen && (
              <div className="dropdown-menu">
-                <div className="dropdown-item" onClick={() => addListBlock('numbered')}>Нумерованный список</div>
+              <div className="dropdown-item" onClick={() => addListBlock('numbered')}>Нумерованный список</div>
                <div className="dropdown-item" onClick={() => addListBlock('unordered')}>Маркированный список</div>
                <div className="dropdown-item" onClick={() => addListBlock('lettered')}>Буквенный список</div>
              </div>
