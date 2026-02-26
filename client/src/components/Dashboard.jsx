@@ -226,7 +226,7 @@ export default function Dashboard() {
                   {activeMenuId === report.id && (
                     <div style={styles.dropdown} onClick={(e) => e.stopPropagation()}>
                       <div style={styles.dropdownItem} onClick={() => handleDownload(report.id)}> <FaDownload color="#666"/> Скачать </div>
-                      <div style={styles.dropdownItem} onClick={handlePreview}> <FaEye color="#666"/> Предпросмотр </div>
+                      {/*<div style={styles.dropdownItem} onClick={handlePreview}> <FaEye color="#666"/> Предпросмотр </div>*/}
                       <div style={styles.dropdownItem} onClick={() => handleDuplicate(report.id)}> <FaCopy color="#666"/> Дублировать </div>
                       <div style={{...styles.dropdownItem, ...styles.dropdownItemDelete}} onClick={() => handleDeleteRequest(report.id, report.title)}> <FaTrash /> Удалить </div>
                     </div>
