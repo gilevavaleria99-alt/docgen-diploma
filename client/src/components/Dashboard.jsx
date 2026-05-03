@@ -27,7 +27,7 @@ const styles = {
   tableHeader: { display: 'grid', gridTemplateColumns: '2.5fr 1fr 0.8fr 1.2fr 0.5fr', paddingBottom: '15px', borderBottom: '1px solid #797979', fontWeight: 'bold', color: '#1E1E20', fontSize: '14px', flexShrink: 0 },
   list: { flexGrow: 1, overflowY: 'auto', minHeight: 0, marginTop: '10px', paddingRight: '10px', marginBottom: '10px' },
   listItem: { display: 'grid', gridTemplateColumns: '2.5fr 1fr 0.8fr 1.2fr 0.5fr', padding: '15px 0', borderBottom: '1px solid #dadadaff', alignItems: 'center', cursor: 'pointer', textDecoration: 'none', color: 'inherit', transition: 'background-color 0.2s', position: 'relative' },
-  buttonsArea: { marginTop: 'auto', display: 'flex', justifyContent: 'center', gap: '20px', paddingTop: '30px' },
+  buttonsArea: { marginTop: 'auto', display: 'flex', justifyContent: 'center', gap: '20px', paddingTop: '30px', flexShrink: 0 },
   createBtn: { backgroundColor: '#96C22B', color: 'white', border: 'none', padding: '10px 25px', borderRadius: '100px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '16px', textDecoration: 'none' },
   infoBtn: { backgroundColor: '#9F2BC2', color: 'white', border: 'none', padding: '10px 25px', borderRadius: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '16px' },
   menuBtn: { background: 'none', border: 'none', cursor: 'pointer', padding: '10px', color: '#999', fontSize: '16px', display: 'flex', justifyContent: 'center' },
