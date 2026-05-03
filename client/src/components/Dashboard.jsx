@@ -20,12 +20,12 @@ const getClientId = () => {
 };
 
 const styles = {
-  container: { display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', backgroundColor: '#F8F9FA', color: 'white', fontFamily: 'sans-serif' },
-  header: { marginTop: '60px', display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' },
+  container: { display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh', backgroundColor: '#F8F9FA', color: 'white', fontFamily: 'sans-serif' },
+  header: { marginTop: '60px', display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px', flexShrink: 0 },
   headerTitle: { fontSize: '24px', fontWeight: 'bold', margin: 0, color: '#1E1E20' },
-  card: { backgroundColor: 'white', color: 'black', width: '1200px', borderRadius: '20px', padding: '40px', minHeight: '500px', display: 'flex', flexDirection: 'column', position: 'relative', border: '1px solid #797979', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' },
-  tableHeader: { display: 'grid', gridTemplateColumns: '2.5fr 1fr 0.8fr 1.2fr 0.5fr', paddingBottom: '15px', borderBottom: '1px solid #797979', fontWeight: 'bold', color: '#1E1E20', fontSize: '14px' },
-  list: { flexGrow: 1, marginTop: '10px' },
+  card: { backgroundColor: 'white', color: 'black', width: '100%', maxWidth: '1200px', borderRadius: '20px', padding: '40px', minHeight: '500px', display: 'flex', flexDirection: 'column', position: 'relative', border: '1px solid #797979', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' },
+  tableHeader: { display: 'grid', gridTemplateColumns: '2.5fr 1fr 0.8fr 1.2fr 0.5fr', paddingBottom: '15px', borderBottom: '1px solid #797979', fontWeight: 'bold', color: '#1E1E20', fontSize: '14px', flexShrink: 0 },
+  list: { flexGrow: 1, overflowY: 'auto', minHeight: 0, marginTop: '10px', paddingRight: '10px', marginBottom: '10px' },
   listItem: { display: 'grid', gridTemplateColumns: '2.5fr 1fr 0.8fr 1.2fr 0.5fr', padding: '15px 0', borderBottom: '1px solid #dadadaff', alignItems: 'center', cursor: 'pointer', textDecoration: 'none', color: 'inherit', transition: 'background-color 0.2s', position: 'relative' },
   buttonsArea: { marginTop: 'auto', display: 'flex', justifyContent: 'center', gap: '20px', paddingTop: '30px' },
   createBtn: { backgroundColor: '#96C22B', color: 'white', border: 'none', padding: '10px 25px', borderRadius: '100px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '16px', textDecoration: 'none' },
