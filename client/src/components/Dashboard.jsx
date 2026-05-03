@@ -20,7 +20,7 @@ const getClientId = () => {
 };
 
 const styles = {
-  container: { display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh', backgroundColor: '#F8F9FA', color: 'white', fontFamily: 'sans-serif' },
+  container: { display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100vh', backgroundColor: '#F8F9FA', color: 'white', fontFamily: 'sans-serif', padding: '2vh 20px', boxSizing: 'border-box', overflow: 'hidden' },
   header: { marginTop: '60px', display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px', flexShrink: 0 },
   headerTitle: { fontSize: '24px', fontWeight: 'bold', margin: 0, color: '#1E1E20' },
   card: { backgroundColor: 'white', color: 'black', width: '100%', maxWidth: '1200px', borderRadius: '20px', padding: '40px', minHeight: '500px', display: 'flex', flexDirection: 'column', position: 'relative', border: '1px solid #797979', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' },
